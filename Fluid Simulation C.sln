@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fluid Simulation C", "Fluid Simulation C\Fluid Simulation C.vcxproj", "{37C3D797-D460-40FA-A801-970B89C9E8DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Debug|x64.ActiveCfg = Debug|x64
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Debug|x64.Build.0 = Debug|x64
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Debug|x86.ActiveCfg = Debug|Win32
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Debug|x86.Build.0 = Debug|Win32
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Release|x64.ActiveCfg = Release|x64
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Release|x64.Build.0 = Release|x64
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Release|x86.ActiveCfg = Release|Win32
+		{37C3D797-D460-40FA-A801-970B89C9E8DD}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2401214D-1A67-4B04-A085-6F665752830F}
+	EndGlobalSection
+EndGlobal
