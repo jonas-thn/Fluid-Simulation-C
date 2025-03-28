@@ -91,8 +91,8 @@ int main()
 	initialize_enviroment(enviroment);
 
 	int simulation_running = 1;
-
 	int current_type = SOLID_TYPE;
+	int delete_mode = 0;
 
 	SDL_Event event;
 
@@ -112,10 +112,18 @@ int main()
 					int cell_x = event.motion.x / CELL_SIZE;
 					int cell_y = event.motion.y / CELL_SIZE;
 
-					struct Cell cell = (struct Cell){ current_type, 0, cell_x, cell_y };
+					int fill_level = delete_mode ? 0 : 1;
 
-					enviroment[cell_y + COLUMNS * cell_x] = cell;
+					if (delete_mode != 0)
+					{
+						current_type = WATER_TYPE;
+					}
+
+					struct Cell cell = (struct Cell){ current_type, fill_level, cell_x, cell_y };
+
+					enviroment[cell_x + COLUMNS * cell_y] = cell;
 				}
+
 			}
 
 			if (event.type == SDL_KEYDOWN)
@@ -123,6 +131,10 @@ int main()
 				if (event.key.keysym.sym == SDLK_SPACE)
 				{
 					current_type = !current_type;
+				}
+				if (event.key.keysym.sym == SDLK_BACKSPACE)
+				{
+					delete_mode = !delete_mode;
 				}
 			}
 		}
