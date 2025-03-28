@@ -5,7 +5,7 @@
 #define SCREEN_HEIGHT 600
 
 #define COLOR_WHITE 0xffffffff
-#define COLOR_BLACK 0x00000000;
+#define COLOR_BLACK 0x00000000
 #define COLOR_BLUE 0xff34c3eb
 #define COLOR_GRAY 0x0f0f0f0f
 #define CELL_SIZE 20
@@ -18,7 +18,7 @@
 struct Cell
 {
 	int type;
-	int fill_level;
+	double fill_level;
 	int x;
 	int y;
 
@@ -29,10 +29,28 @@ void draw_cell(SDL_Surface* surface, struct Cell cell)
 	int pixel_x = cell.x * CELL_SIZE;
 	int pixel_y = cell.y * CELL_SIZE;
 	SDL_Rect cell_rect = (SDL_Rect){ pixel_x, pixel_y, CELL_SIZE, CELL_SIZE };
+	SDL_FillRect(surface, &cell_rect, COLOR_BLACK);
 
-	Uint32 color = COLOR_WHITE;
-	if (cell.type == WATER_TYPE) color = COLOR_BLUE;
-	SDL_FillRect(surface, &cell_rect, color);
+	if (cell.type == WATER_TYPE) 
+	{
+		int water_height = cell.fill_level * CELL_SIZE;
+		int empty_height = CELL_SIZE - water_height;
+		SDL_Rect water_rect = (SDL_Rect){ pixel_x, pixel_y + empty_height, CELL_SIZE, water_height };
+		SDL_FillRect(surface, &water_rect, COLOR_BLUE);
+	}
+
+	if (cell.type == SOLID_TYPE)
+	{
+		SDL_FillRect(surface, &cell_rect, COLOR_WHITE);
+	}
+}
+
+void draw_enviroment(SDL_Surface * surface, struct Cell enviroment[ROWS * COLUMNS])
+{
+	for (int i = 0; i < ROWS * COLUMNS; i++)
+	{
+		draw_cell(surface, enviroment[i]);
+	}
 }
 
 void draw_grid(SDL_Surface* surface)
@@ -51,6 +69,17 @@ void draw_grid(SDL_Surface* surface)
 	}
 }
 
+void initialize_enviroment(struct Cell enviroment[ROWS * COLUMNS])
+{
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			enviroment[j + COLUMNS * i] = (struct Cell){ WATER_TYPE, 0, j, i };
+		}
+	}
+}
+
 int main()
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -58,7 +87,8 @@ int main()
 
 	SDL_Surface* surface = SDL_GetWindowSurface(window);
 
-	draw_grid(surface);
+	struct Cell enviroment[ROWS * COLUMNS];
+	initialize_enviroment(enviroment);
 
 	int simulation_running = 1;
 
@@ -84,7 +114,7 @@ int main()
 
 					struct Cell cell = (struct Cell){ current_type, 0, cell_x, cell_y };
 
-					draw_cell(surface, cell);
+					enviroment[cell_y + COLUMNS * cell_x] = cell;
 				}
 			}
 
@@ -97,6 +127,8 @@ int main()
 			}
 		}
 
+		draw_enviroment(surface, enviroment);
+		draw_grid(surface);
 		SDL_UpdateWindowSurface(window);
 
 		SDL_Delay(10);
