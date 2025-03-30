@@ -97,20 +97,60 @@ void simulation_step(struct Cell enviroment[ROWS * COLUMNS])
 			if (source_cell.type == WATER_TYPE && i < ROWS - 1)
 			{
 				struct Cell destination_cell = enviroment[j + COLUMNS * (i + 1)];
-				
 				if (destination_cell.fill_level < source_cell.fill_level)
 				{
-					/*double liquid_amount = source_cell.fill_level - destination_cell.fill_level;
-					if (liquid_amount > 1)
-					{
-						liquid_amount--;
-						enviroment_next[j + COLUMNS * (i + 1)].fill_level = 1;
-						enviroment_next[j + COLUMNS * i].fill_level = 0;
-
-					}*/
-
 					enviroment_next[j + COLUMNS * i].fill_level = 0;
 					enviroment_next[j + COLUMNS * (i + 1)].fill_level += source_cell.fill_level;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			struct Cell source_cell = enviroment[j + COLUMNS * i];
+
+			//check sell below full or solid or bottom border
+			if (i + 1 == ROWS || enviroment[j + COLUMNS * (i + 1)].fill_level >= 1 || enviroment[j + COLUMNS * (i+1)].type == SOLID_TYPE)
+			{
+				//water flowing left
+				if (source_cell.type == WATER_TYPE && j > 0)
+				{
+					struct Cell destination_cell = enviroment[(j - 1) + COLUMNS * i];
+					if (destination_cell.type == WATER_TYPE && destination_cell.fill_level < source_cell.fill_level)
+					{
+						double delta_fill = source_cell.fill_level - destination_cell.fill_level;
+
+						enviroment_next[j + COLUMNS * i].fill_level -= delta_fill / 3;
+						enviroment_next[(j - 1) + COLUMNS * i].fill_level += delta_fill / 3;
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			struct Cell source_cell = enviroment[j + COLUMNS * i];
+
+			//check sell below full or solid or bottom border
+			if (i + 1 == ROWS || enviroment[j + COLUMNS * (i + 1)].fill_level >= 1 || enviroment[j + COLUMNS * (i + 1)].type == SOLID_TYPE)
+			{
+				//water flowing right
+				if (source_cell.type == WATER_TYPE && j < COLUMNS - 1)
+				{
+					struct Cell destination_cell = enviroment[(j + 1) + COLUMNS * i];
+					if (destination_cell.type == WATER_TYPE && destination_cell.fill_level < source_cell.fill_level)
+					{
+						double delta_fill = source_cell.fill_level - destination_cell.fill_level;
+
+						enviroment_next[j + COLUMNS * i].fill_level -= delta_fill / 3;
+						enviroment_next[(j + 1) + COLUMNS * i].fill_level += delta_fill / 3;
+					}
 				}
 			}
 		}
@@ -186,7 +226,7 @@ int main()
 		draw_grid(surface);
 		SDL_UpdateWindowSurface(window);
 
-		SDL_Delay(50);
+		SDL_Delay(30);
 	}
 
 	
