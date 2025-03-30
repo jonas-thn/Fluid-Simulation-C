@@ -6,10 +6,12 @@
 
 #define COLOR_WHITE 0xffffffff
 #define COLOR_BLACK 0x00000000
-#define COLOR_BLUE 0xff34c3eb
+#define COLOR_BLUE 0x0034c3eb
+#define COLOR_BLUE_MIN 0x00001eff
+#define COLOR_BLUE_MAX 0x0034c3eb
 #define COLOR_GRAY 0x0f0f0f0f
-#define CELL_SIZE 20
-#define LINE_WIDTH 2
+#define CELL_SIZE 10
+#define LINE_WIDTH 1
 #define COLUMNS SCREEN_WIDTH / CELL_SIZE
 #define ROWS SCREEN_HEIGHT / CELL_SIZE
 #define WATER_TYPE 0
@@ -23,7 +25,23 @@ struct Cell
 	int y;
 };
 
-void draw_cell(SDL_Surface* surface, struct Cell cell)
+Uint32 get_interpolated_color(Uint32 min, Uint32 max, double percentage)
+{
+	Uint32 color1 = min;
+	Uint32 color2 = max;
+
+	unsigned char r1 = (color1 >> 16) & 0xff;
+	unsigned char r2 = (color2 >> 16) & 0xff;
+	unsigned char g1 = (color1 >> 8) & 0xff;
+	unsigned char g2 = (color2 >> 8) & 0xff;
+	unsigned char b1 = (color1 >> 0) & 0xff;
+	unsigned char b2 = (color2 >> 0) & 0xff;
+
+	return (int)((r2 - r1) * percentage + r1) << 16 | (int)((g2 - g1) * percentage + g1) << 8 | (int)((b2 - b1) * percentage + b1);
+}
+
+
+void draw_cell(SDL_Surface* surface, struct Cell cell, int fill_cell)
 {
 	int pixel_x = cell.x * CELL_SIZE;
 	int pixel_y = cell.y * CELL_SIZE;
@@ -35,7 +53,24 @@ void draw_cell(SDL_Surface* surface, struct Cell cell)
 		int water_height = cell.fill_level * CELL_SIZE > 1 * CELL_SIZE ? CELL_SIZE : cell.fill_level * CELL_SIZE;
 		int empty_height = CELL_SIZE - water_height;
 		SDL_Rect water_rect = (SDL_Rect){ pixel_x, pixel_y + empty_height, CELL_SIZE, water_height };
-		SDL_FillRect(surface, &water_rect, COLOR_BLUE);
+
+		Uint32 interpolated_color = get_interpolated_color(COLOR_BLUE_MIN, COLOR_BLUE_MAX, cell.fill_level);
+
+		if (cell.fill_level < 0.1)
+		{
+			interpolated_color = COLOR_BLACK;
+		}
+
+		if (fill_cell)
+		{
+			SDL_FillRect(surface, &cell_rect, interpolated_color);
+
+		}
+		else
+		{
+			SDL_FillRect(surface, &water_rect, interpolated_color);
+
+		}
 	}
 
 	if (cell.type == SOLID_TYPE)
@@ -48,7 +83,7 @@ void draw_enviroment(SDL_Surface * surface, struct Cell enviroment[ROWS * COLUMN
 {
 	for (int i = 0; i < ROWS * COLUMNS; i++)
 	{
-		draw_cell(surface, enviroment[i]);
+		draw_cell(surface, enviroment[i], 1);
 	}
 }
 
