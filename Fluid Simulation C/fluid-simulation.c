@@ -23,14 +23,6 @@ struct Cell
 	int y;
 };
 
-struct CellFlow
-{
-	double flow_left;
-	double flow_right;
-	double flow_up;
-	double flow_down;
-};
-
 void draw_cell(SDL_Surface* surface, struct Cell cell)
 {
 	int pixel_x = cell.x * CELL_SIZE;
@@ -89,44 +81,44 @@ void initialize_enviroment(struct Cell enviroment[ROWS * COLUMNS])
 
 void simulation_step(struct Cell enviroment[ROWS * COLUMNS])
 {
-	struct CellFlow flows[ROWS * COLUMNS];
+	struct Cell enviroment_next[ROWS * COLUMNS];
 
 	for (int i = 0; i < ROWS * COLUMNS; i++)
 	{
-		flows[i] = (struct CellFlow) { 0, 0, 0, 0 };
+		enviroment_next[i] = enviroment[i];
 	}
 
 	for (int i = 0; i < ROWS; i++)
 	{
 		for (int j = 0; j < COLUMNS; j++)
 		{
-			struct Cell current_cell = enviroment[j + COLUMNS * i];
-
-			if (current_cell.type == WATER_TYPE && i < ROWS - 1)
+			//water flows down
+			struct Cell source_cell = enviroment[j + COLUMNS * i];
+			if (source_cell.type == WATER_TYPE && i < ROWS - 1)
 			{
-				if(enviroment[j + COLUMNS * i].fill_level != 0)
+				struct Cell destination_cell = enviroment[j + COLUMNS * (i + 1)];
+				
+				if (destination_cell.fill_level < source_cell.fill_level)
 				{
-					flows[j + COLUMNS * i].flow_down = flows[j + COLUMNS * i].flow_down = 1;
+					/*double liquid_amount = source_cell.fill_level - destination_cell.fill_level;
+					if (liquid_amount > 1)
+					{
+						liquid_amount--;
+						enviroment_next[j + COLUMNS * (i + 1)].fill_level = 1;
+						enviroment_next[j + COLUMNS * i].fill_level = 0;
+
+					}*/
+
+					enviroment_next[j + COLUMNS * i].fill_level = 0;
+					enviroment_next[j + COLUMNS * (i + 1)].fill_level += source_cell.fill_level;
 				}
 			}
 		}
 	}
 
-	for (int i = 0; i < ROWS; i++)
+	for (int i = 0; i < ROWS * COLUMNS; i++)
 	{
-		for(int j = 0; j < COLUMNS; j++)
-		{
-			if (i > 0)
-			{
-				//enviroment[j + COLUMNS * i];
-				//enviroment[j + COLUMNS * (i - 1)];
-
-				struct CellFlow cell_above_flow = flows[j + COLUMNS * (i - 1)];
-
-				enviroment[j + COLUMNS * i].fill_level += cell_above_flow.flow_down;
-				enviroment[j + COLUMNS * (i-1)].fill_level -= cell_above_flow.flow_down;
-			}
-		}
+		enviroment[i] = enviroment_next[i];
 	}
 }
 
@@ -194,7 +186,7 @@ int main()
 		draw_grid(surface);
 		SDL_UpdateWindowSurface(window);
 
-		SDL_Delay(100);
+		SDL_Delay(50);
 	}
 
 	
