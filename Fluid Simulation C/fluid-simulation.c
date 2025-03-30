@@ -193,7 +193,13 @@ void simulation_pahse_rule3(struct Cell enviroment[ROWS * COLUMNS])
 			//water pressure up
 			struct Cell source_cell = enviroment[j + COLUMNS * i];
 
-			
+			if (source_cell.type == WATER_TYPE && source_cell.fill_level > 1 && i > 0 && enviroment[j + COLUMNS * (i - 1)].type == WATER_TYPE && source_cell.fill_level > enviroment[j + COLUMNS * (i - 1)].fill_level)
+			{
+				struct Cell destination_cell = enviroment[j + COLUMNS * (i - 1)];
+				double transfer_fill = (source_cell.fill_level - 1);
+				enviroment_next[j + COLUMNS * i].fill_level -= transfer_fill;
+				enviroment_next[j + COLUMNS * (i - 1)].fill_level += transfer_fill;
+			}
 		}
 	}
 
@@ -207,6 +213,7 @@ void simulation_step(struct Cell enviroment[ROWS * COLUMNS])
 {
 	simulation_phase_rule1(enviroment);
 	simulation_pahse_rule2(enviroment);	
+	simulation_pahse_rule3(enviroment);
 }
 
 int main()
@@ -241,15 +248,20 @@ int main()
 					int cell_x = event.motion.x / CELL_SIZE;
 					int cell_y = event.motion.y / CELL_SIZE;
 
-					int fill_level = delete_mode ? 0 : 1;
+					int fill_level;
+					struct Cell cell;
 
 					if (delete_mode != 0)
 					{
 						current_type = WATER_TYPE;
+						fill_level = 0;
+						cell = (struct Cell){ current_type, fill_level, cell_x, cell_y };
 					}
-
-					struct Cell cell = (struct Cell){ current_type, fill_level, cell_x, cell_y };
-
+					else
+					{
+						fill_level = 1;
+						cell = (struct Cell){ current_type, fill_level, cell_x, cell_y };
+					}
 					enviroment[cell_x + COLUMNS * cell_y] = cell;
 				}
 
